@@ -1,0 +1,690 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Amadeus dApp Demo</title>
+		<link rel="icon" type="image/svg+xml" href="/ama-favicon.svg" />
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+			rel="stylesheet"
+		/>
+		<style>
+			:root {
+				color-scheme: dark;
+				/* Amadeus design tokens — mirrors amadeus-wallet-web / extension index.css */
+				--bg: #0a0a0f;
+				--bg-soft: #0f0f14;
+				--panel: #131313;
+				--panel-2: #17171a;
+				--border: rgba(255, 255, 255, 0.1);
+				--border-strong: rgba(255, 255, 255, 0.15);
+				--ink: #fafafa;
+				--dim: #9f9fa9;
+				--faint: #71717a;
+				--accent: #00baae; /* --primary (buttons/rings) */
+				--accent-logo: #00f0de; /* brand cyan (logo/hero) */
+				--accent-ink: #04201f;
+				--accent-soft: rgba(0, 240, 222, 0.12);
+				--ok: #22c55e;
+				--warn: #e0a44a;
+				--err: #ff6467;
+				--radius: 16px;
+				--radius-control: 8px;
+				--mono: 'Fira Code', ui-monospace, 'SF Mono', Menlo, monospace;
+				--sans: 'Space Grotesk', 'Inter', ui-sans-serif, system-ui, sans-serif;
+				--brand: 'Orbitron', var(--sans);
+			}
+			* {
+				box-sizing: border-box;
+			}
+			html,
+			body {
+				margin: 0;
+			}
+			body {
+				min-height: 100dvh;
+				background:
+					radial-gradient(60% 45% at 50% 0%, rgba(0, 240, 222, 0.09) 0%, transparent 70%),
+					var(--bg);
+				color: var(--ink);
+				font: 15px/1.55 var(--sans);
+				-webkit-font-smoothing: antialiased;
+				display: flex;
+				justify-content: center;
+				padding: clamp(1.25rem, 5vw, 3.5rem) 1.15rem 5rem;
+			}
+			main {
+				width: 100%;
+				max-width: 448px;
+				display: flex;
+				flex-direction: column;
+				gap: 1.15rem;
+			}
+
+			/* header */
+			header {
+				display: flex;
+				align-items: center;
+				gap: 0.7rem;
+				margin-bottom: 0.15rem;
+			}
+			.mark {
+				height: 34px;
+				width: 34px;
+				display: grid;
+				place-items: center;
+				flex: none;
+				filter: drop-shadow(0 2px 12px rgba(0, 240, 222, 0.4));
+			}
+			.mark svg {
+				height: 100%;
+				width: auto;
+				display: block;
+			}
+			h1 {
+				font-family: var(--brand);
+				font-size: 1.02rem;
+				font-weight: 700;
+				letter-spacing: 0.2em;
+				text-transform: uppercase;
+				margin: 0;
+				line-height: 1.2;
+				color: var(--ink);
+			}
+			.tag {
+				display: block;
+				font-size: 0.75rem;
+				color: var(--dim);
+				font-weight: 400;
+				margin-top: 3px;
+			}
+
+			/* cards */
+			.card {
+				background: linear-gradient(180deg, var(--panel-2), var(--panel));
+				border: 1px solid var(--border);
+				border-radius: var(--radius);
+				padding: 1.2rem;
+				display: flex;
+				flex-direction: column;
+				gap: 1rem;
+				box-shadow: 0 1px 0 #ffffff08 inset, 0 12px 30px -22px #000;
+			}
+			.field {
+				display: flex;
+				flex-direction: column;
+				gap: 0.45rem;
+			}
+			.field-label {
+				font-size: 0.7rem;
+				font-weight: 600;
+				letter-spacing: 0.07em;
+				text-transform: uppercase;
+				color: var(--faint);
+			}
+			input {
+				background: var(--bg-soft);
+				border: 1px solid var(--border);
+				border-radius: 10px;
+				color: var(--ink);
+				padding: 0.62rem 0.75rem;
+				font: 0.85rem var(--mono);
+				transition: border-color 0.15s ease, box-shadow 0.15s ease;
+				width: 100%;
+			}
+			input:focus-visible {
+				outline: none;
+				border-color: var(--accent);
+				box-shadow: 0 0 0 3px var(--accent-soft);
+			}
+			input:read-only {
+				color: var(--dim);
+				cursor: default;
+			}
+
+			/* segmented network selector */
+			.segmented {
+				display: flex;
+				gap: 4px;
+				background: var(--bg-soft);
+				border: 1px solid var(--border);
+				border-radius: 11px;
+				padding: 4px;
+			}
+			.seg {
+				flex: 1;
+				background: transparent;
+				border: 0;
+				color: var(--dim);
+				padding: 0.45rem 0.3rem;
+				border-radius: 8px;
+				font: 600 0.82rem var(--sans);
+				cursor: pointer;
+				transition: background 0.15s ease, color 0.15s ease;
+			}
+			.seg:hover {
+				color: var(--ink);
+			}
+			.seg.active {
+				background: var(--panel-2);
+				color: var(--ink);
+				box-shadow: 0 1px 3px #0007;
+			}
+
+			/* buttons */
+			button {
+				font: inherit;
+				cursor: pointer;
+				border-radius: 11px;
+				transition: transform 0.12s ease, background 0.15s ease, border-color 0.15s ease,
+					opacity 0.15s ease;
+			}
+			button:active {
+				transform: translateY(1px);
+			}
+			.btn-primary {
+				background: var(--accent);
+				color: var(--accent-ink);
+				border: 0;
+				padding: 0.72rem 1rem;
+				font-weight: 680;
+				font-size: 0.92rem;
+				box-shadow: 0 8px 22px -12px var(--accent);
+			}
+			.btn-primary:hover:not(:disabled) {
+				background: #12cdc0;
+			}
+			.btn-ghost {
+				background: transparent;
+				color: var(--dim);
+				border: 1px solid var(--border);
+				padding: 0.5rem 0.85rem;
+				font-weight: 550;
+				font-size: 0.82rem;
+			}
+			.btn-ghost:hover:not(:disabled) {
+				color: var(--ink);
+				border-color: var(--faint);
+			}
+			button:disabled {
+				opacity: 0.4;
+				cursor: not-allowed;
+				box-shadow: none;
+			}
+
+			/* QR */
+			#qr {
+				display: none;
+				flex-direction: column;
+				align-items: center;
+				gap: 0.85rem;
+			}
+			.qr-tile {
+				background: #fff;
+				padding: 14px;
+				border-radius: 14px;
+				line-height: 0;
+				box-shadow: 0 18px 40px -24px #000;
+			}
+			.qr-tile canvas {
+				display: block;
+				border-radius: 4px;
+			}
+			.qr-hint {
+				font-size: 0.8rem;
+				color: var(--dim);
+				text-align: center;
+				max-width: 30ch;
+				margin: 0;
+			}
+			.qr-actions {
+				display: flex;
+				gap: 0.5rem;
+				justify-content: center;
+			}
+			a#link {
+				display: block;
+				align-self: stretch;
+				min-width: 0;
+				color: var(--faint);
+				font: 0.7rem var(--mono);
+				text-decoration: none;
+				white-space: nowrap;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				background: var(--bg-soft);
+				border: 1px solid var(--border);
+				border-radius: 8px;
+				padding: 0.4rem 0.6rem;
+			}
+			a#link:hover {
+				color: var(--dim);
+			}
+
+			/* session */
+			.session-head {
+				display: flex;
+				align-items: center;
+				justify-content: space-between;
+				gap: 0.75rem;
+			}
+			.acct {
+				display: flex;
+				align-items: center;
+				gap: 0.7rem;
+				min-width: 0;
+			}
+			.avatar {
+				height: 38px;
+				width: 38px;
+				border-radius: 50%;
+				flex: none;
+				display: grid;
+				place-items: center;
+				background: var(--accent-soft);
+				color: var(--accent);
+				font-weight: 700;
+			}
+			.acct-meta {
+				min-width: 0;
+				display: flex;
+				flex-direction: column;
+				gap: 1px;
+			}
+			.acct-label {
+				font-size: 0.68rem;
+				font-weight: 600;
+				letter-spacing: 0.06em;
+				text-transform: uppercase;
+				color: var(--faint);
+			}
+			.acct-value {
+				display: flex;
+				align-items: center;
+				gap: 0.4rem;
+			}
+			#account {
+				font: 0.86rem var(--mono);
+				color: var(--ink);
+			}
+			.copy-icon {
+				background: none;
+				border: 0;
+				color: var(--faint);
+				padding: 2px;
+				font-size: 0.72rem;
+			}
+			.copy-icon:hover {
+				color: var(--accent);
+			}
+			.row {
+				display: flex;
+				justify-content: space-between;
+				align-items: center;
+				gap: 1rem;
+				font-size: 0.86rem;
+			}
+			.row > span:first-child {
+				color: var(--faint);
+				font-size: 0.7rem;
+				font-weight: 600;
+				letter-spacing: 0.07em;
+				text-transform: uppercase;
+			}
+			.mono {
+				font-family: var(--mono);
+				font-size: 0.78rem;
+				word-break: break-all;
+				text-align: right;
+			}
+			.ok {
+				color: var(--ok);
+			}
+			.divider {
+				height: 1px;
+				background: var(--border);
+			}
+			.action-row {
+				display: flex;
+				gap: 0.5rem;
+			}
+			.action-row input {
+				flex: 1;
+				min-width: 0;
+			}
+			.action-row .btn-primary {
+				flex: none;
+			}
+			.result {
+				display: flex;
+				flex-direction: column;
+				gap: 0.75rem;
+				border-top: 1px solid var(--border);
+				padding-top: 0.9rem;
+			}
+			.result-head {
+				display: flex;
+				align-items: center;
+				gap: 0.6rem;
+			}
+			.result-badge {
+				height: 30px;
+				width: 30px;
+				border-radius: 50%;
+				display: grid;
+				place-items: center;
+				background: #4ccf9a1a;
+				color: var(--ok);
+				flex: none;
+			}
+			.result-text {
+				display: flex;
+				flex-direction: column;
+			}
+			.result-title {
+				font-weight: 650;
+				font-size: 0.92rem;
+				color: var(--ink);
+			}
+			.result-sub {
+				font-size: 0.76rem;
+				color: var(--dim);
+			}
+			.result-rows {
+				display: flex;
+				flex-direction: column;
+				gap: 0.5rem;
+			}
+			.rrow {
+				display: flex;
+				justify-content: space-between;
+				gap: 1rem;
+			}
+			.rrow .k {
+				color: var(--faint);
+				font-size: 0.68rem;
+				font-weight: 600;
+				letter-spacing: 0.06em;
+				text-transform: uppercase;
+			}
+			.rrow .v {
+				font-family: var(--mono);
+				font-size: 0.76rem;
+				color: var(--ink);
+				text-align: right;
+				word-break: break-all;
+				max-width: 62%;
+			}
+			.result-link {
+				font-size: 0.8rem;
+				color: var(--accent);
+				text-decoration: none;
+				font-weight: 600;
+			}
+			.result-link:hover {
+				text-decoration: underline;
+			}
+
+			/* accounts */
+			.accounts {
+				display: flex;
+				flex-direction: column;
+				gap: 0.4rem;
+			}
+			.acct-row {
+				display: flex;
+				align-items: center;
+				gap: 0.7rem;
+				width: 100%;
+				text-align: left;
+				background: var(--bg-soft);
+				border: 1px solid var(--border);
+				border-radius: 12px;
+				padding: 0.6rem 0.75rem;
+				cursor: pointer;
+				transition: border-color 0.15s ease, background 0.15s ease;
+			}
+			.acct-row:hover {
+				border-color: var(--faint);
+			}
+			.acct-row.selected {
+				border-color: var(--accent);
+				background: var(--accent-soft);
+			}
+			.acct-radio {
+				height: 16px;
+				width: 16px;
+				border-radius: 50%;
+				border: 2px solid var(--faint);
+				flex: none;
+				display: grid;
+				place-items: center;
+			}
+			.acct-row.selected .acct-radio {
+				border-color: var(--accent);
+			}
+			.acct-row.selected .acct-radio::after {
+				content: '';
+				height: 7px;
+				width: 7px;
+				border-radius: 50%;
+				background: var(--accent);
+			}
+			.acct-info {
+				display: flex;
+				flex-direction: column;
+				min-width: 0;
+				flex: 1;
+			}
+			.acct-name {
+				font-size: 0.85rem;
+				font-weight: 600;
+				color: var(--ink);
+			}
+			.acct-addr {
+				font: 0.72rem var(--mono);
+				color: var(--dim);
+			}
+			.acct-bal {
+				font-size: 0.8rem;
+				font-weight: 600;
+				color: var(--ink);
+				text-align: right;
+				white-space: nowrap;
+			}
+			.acct-bal .u {
+				color: var(--dim);
+				font-weight: 400;
+				font-size: 0.72rem;
+			}
+
+			/* status */
+			.status {
+				display: flex;
+				align-items: flex-start;
+				gap: 0.6rem;
+				background: var(--bg-soft);
+				border: 1px solid var(--border);
+				border-radius: 12px;
+				padding: 0.75rem 0.85rem;
+			}
+			.status .dot {
+				margin-top: 0.4rem;
+				height: 7px;
+				width: 7px;
+				border-radius: 50%;
+				background: var(--faint);
+				flex: none;
+				transition: background 0.2s ease, box-shadow 0.2s ease;
+			}
+			#log {
+				margin: 0;
+				font: 0.8rem/1.5 var(--sans);
+				white-space: pre-wrap;
+				color: var(--dim);
+			}
+			.status[data-state='wait'] #log,
+			.status[data-state='ok'] #log {
+				color: var(--ink);
+			}
+			.status[data-state='err'] #log {
+				color: #f0b4b4;
+			}
+			.status[data-state='wait'] .dot {
+				background: var(--warn);
+				box-shadow: 0 0 0 3px #e0a44a22;
+				animation: pulse 1.4s ease-in-out infinite;
+			}
+			.status[data-state='ok'] .dot {
+				background: var(--ok);
+				box-shadow: 0 0 0 3px #4ccf9a22;
+			}
+			.status[data-state='err'] .dot {
+				background: var(--err);
+				box-shadow: 0 0 0 3px #e5737322;
+			}
+			@keyframes pulse {
+				50% {
+					opacity: 0.35;
+				}
+			}
+			@media (prefers-reduced-motion: reduce) {
+				* {
+					animation: none !important;
+					transition: none !important;
+				}
+			}
+		</style>
+	</head>
+	<body>
+		<main>
+			<header>
+				<span class="mark" aria-hidden="true">
+					<svg viewBox="0 0 808 925" fill="none" xmlns="http://www.w3.org/2000/svg">
+						<path d="M388.185 478.489L0.1875 253.953V700.474L93.1125 754.13V423.894L280.622 538.39V862.392L388.185 924.743V478.489Z" fill="#00F0DE" />
+						<path d="M289.687 756.385L84.2188 639.33L84.7526 527.285L289.687 644.932V756.385Z" fill="#00F0DE" />
+						<path d="M419.417 478.489L807.414 253.953V700.474L714.489 754.13V423.894L526.98 538.39V862.392L419.417 924.743V478.489Z" fill="#00F0DE" />
+						<path d="M517.922 756.385L723.391 639.33L722.857 527.285L517.922 644.932V756.385Z" fill="#00F0DE" />
+						<path d="M794.151 225.216L693.56 284.493L395.376 112.05L481.598 230.604L431.302 259.345L201.378 214.438L506.746 392.271L404.357 449.751L18.1562 225.216L193.053 123.531L314.539 151.564L253.976 88.1104L404.357 0.679688L794.151 225.216Z" fill="#00F0DE" />
+					</svg>
+				</span>
+				<span>
+					<h1>Amadeus</h1>
+					<span class="tag">dApp Demo · connect &amp; sign over the bridge</span>
+				</span>
+			</header>
+
+			<div class="card" id="connect-card">
+				<div class="field">
+					<span class="field-label">Bridge relay</span>
+					<input id="bridge" value="https://bridge.ama.one" spellcheck="false" />
+				</div>
+
+				<div class="field">
+					<span class="field-label">Network</span>
+					<div class="segmented" id="netseg">
+						<button type="button" class="seg active" data-net="mainnet">Mainnet</button>
+						<button type="button" class="seg" data-net="testnet">Testnet</button>
+						<button type="button" class="seg" data-net="custom">Custom</button>
+					</div>
+					<input id="node" value="https://mainnet-rpc.ama.one/api" spellcheck="false" readonly />
+				</div>
+
+				<button id="connect" class="btn-primary">Connect wallet</button>
+
+				<div id="qr">
+					<div class="qr-tile"><canvas id="qrcanvas"></canvas></div>
+					<p class="qr-hint">Scan with the Amadeus wallet, then approve the connection.</p>
+					<div class="qr-actions">
+						<button id="regen" class="btn-ghost">Regenerate</button>
+						<button id="copylink" class="btn-ghost">Copy link</button>
+					</div>
+					<a id="link" target="_blank" rel="noreferrer"></a>
+				</div>
+			</div>
+
+			<div class="card" id="session-card" style="display: none">
+				<div class="session-head">
+					<span class="field-label" id="accounts-label">Wallet accounts</span>
+					<button id="disconnect" class="btn-ghost">Disconnect</button>
+				</div>
+				<div class="accounts" id="accounts"></div>
+
+				<div class="divider"></div>
+
+				<!-- Transfer to any account -->
+				<div class="field">
+					<span class="field-label">Send a transfer</span>
+					<input id="recipient" placeholder="Recipient address (blank = self)" spellcheck="false" />
+					<div class="action-row">
+						<input id="amount" value="1" inputmode="decimal" aria-label="Amount in AMA" />
+						<button id="send-transfer" class="btn-primary">Send AMA</button>
+					</div>
+				</div>
+
+				<!-- Arbitrary contract call -->
+				<div class="field">
+					<span class="field-label">Sign a contract call</span>
+					<input id="sc-contract" value="Coin" placeholder="Contract" spellcheck="false" />
+					<input id="sc-method" value="transfer" placeholder="Method" spellcheck="false" />
+					<input id="sc-args" placeholder='Args — JSON array, e.g. ["addr","1000000000","AMA"]' spellcheck="false" />
+					<button id="sign-sc" class="btn-ghost">Sign &amp; submit contract call</button>
+				</div>
+
+				<!-- Arbitrary message signing (off-chain proof of account control) -->
+				<div class="field">
+					<span class="field-label">Sign a message</span>
+					<input id="msg" value="Sign in to the Amadeus demo" placeholder="Message to sign" spellcheck="false" />
+					<button id="sign-msg" class="btn-ghost">Sign message</button>
+				</div>
+
+				<!-- Other request types -->
+				<div class="field">
+					<span class="field-label">Other capabilities</span>
+					<button id="gen-apikey" class="btn-ghost">Request an API key</button>
+				</div>
+
+				<div class="result" id="result" style="display: none">
+					<div class="result-head">
+						<span class="result-badge">
+							<svg
+								width="16"
+								height="16"
+								viewBox="0 0 24 24"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="3"
+								stroke-linecap="round"
+								stroke-linejoin="round"
+							>
+								<path d="M20 6 9 17l-5-5" />
+							</svg>
+						</span>
+						<span class="result-text">
+							<span class="result-title" id="result-title"></span>
+							<span class="result-sub" id="result-sub"></span>
+						</span>
+					</div>
+					<div class="result-rows" id="result-rows"></div>
+					<a
+						id="result-link"
+						class="result-link"
+						target="_blank"
+						rel="noreferrer"
+						style="display: none"
+						>View in explorer →</a
+					>
+				</div>
+			</div>
+
+			<div class="status" id="status" data-state="idle">
+				<span class="dot"></span>
+				<pre id="log">Idle — pick a network and connect.</pre>
+			</div>
+		</main>
+		<script type="module" src="/src/main.ts"></script>
+	</body>
+</html>
