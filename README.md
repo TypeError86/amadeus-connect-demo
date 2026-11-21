@@ -48,6 +48,8 @@ bun run build    # outputs to dist/
 bun run preview  # preview the production build locally
 ```
 
+Checks: `bun run typecheck`, `bun run lint` and `bun run test`.
+
 No server or environment variables are required. The bridge relay and node RPC
 are chosen at runtime in the UI (and default to Amadeus mainnet).
 
@@ -63,7 +65,7 @@ are chosen at runtime in the UI (and default to Amadeus mainnet).
 4. For transactions, the demo submits the returned `txPacked` with
    `submitTransaction()`.
 
-See [`src/main.ts`](src/main.ts) — it's ~450 lines and commented throughout.
+See [`src/main.ts`](src/main.ts) — it's commented throughout.
 
 ## License
 
